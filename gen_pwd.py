@@ -4,17 +4,25 @@ import Crypto.Hash.SHA256 as sha
 import sys
 import getpass
 
-def gen_pwd(user,web,sym1=None,sym2=None,key=None):
-    """
+def gen_pwd(user,web,sym1=None,sym2=None,key=None,strip=4):
+    """ Generates a password for the couple user/website
+
+    Keywords arguments:
+    user    -- The username
+    web     -- The website
+    sym1    -- The first symbol to be used as separator
+    sym2    -- The second symbol to be used as separator
+    key     -- The key to be used to gen the password
+    strip   -- The number of characters to be used in each slice of the password (default 4)
     """
     if not key:
         key = getpass.getpass('Input the KEY: ')
 
     if not sym1:
-        sym1 = getpass.getpass('Input the first symbol: ')
+        sym1 = input('Input the first symbol: ')
 
     if not sym2:
-        sym2 = getpass.getpass('Input the first symbol: ')
+        sym2 = input('Input the first symbol: ')
 
     h = sha.new()
     h.update(key.encode('utf-8'))
@@ -23,10 +31,14 @@ def gen_pwd(user,web,sym1=None,sym2=None,key=None):
     h.update(web.encode('utf-8'))
     digest = h.hexdigest()
     return "{}{}{}{}{}".format(
-            digest[:4],
+            digest[:strip].upper(),
             sym1,
-            digest[8:12],
-            sym2,digest[-4:] 
+            digest[
+                    int(len(digest)/2) - int(strip/2):
+                    int(len(digest)/2) + int(strip/2)
+                   ],
+            sym2,
+            digest[-strip:].lower()
             )
 
 def main(argv=None):
