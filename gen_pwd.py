@@ -18,11 +18,19 @@ def gen_pwd(user,web,sym1=None,sym2=None,key=None,strip=4):
     if not key:
         key = getpass.getpass('Input the KEY: ')
 
+
+    # Python 3.x uses input() to read from keyboard, 2.x uses it to eval
+    # we'd like it to be to read from keyboard
+    try:
+        input = raw_input
+    except NameError:
+        pass
+
     if not sym1:
-        sym1 = input('Input the first symbol: ')
+        sym1 = str(input('Input the first symbol: ')).encode('utf-8')
 
     if not sym2:
-        sym2 = input('Input the first symbol: ')
+        sym2 = str(input('Input the first symbol: ')).encode('utf-8')
 
     h = sha.new()
     h.update(key.encode('utf-8'))
