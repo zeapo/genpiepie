@@ -1,33 +1,17 @@
 #!/usr/bin/python
+import sys, argparse
+from genpiepie import gen_key
 
-import sys
-
-from Crypto.PublicKey import RSA
-
-def gen_key(n=2048):
-    
-    if int(n) < 1024:
-        print("[gen_key] insecure key size")
-        return 
-
-    print("[dbg][gen_key] genrate RSA key size {}".format(n))
-    key = RSA.generate(2048)
-    f = open('test_privkey.pem','w')
-    f.write(key.exportKey('PEM'))
-    f.close()
-
-# test
 def main(argv=None):
+    parser = argparse.ArgumentParser(description="Generate RSA keys")
 
-    if len(argv) < 2:
-        gen_key()
-    else:
-        if argv[1] == '-h':
-            print("Usage: {} [keysize]".format(argv[0]))
-        else:
-            gen_key(argv[1])
+    parser.add_argument('--output', help='The output file name', default='privkey.pem')
+    parser.add_argument('--length', help='The length of the key', default=2048)
 
+    args = parser.parse_args()
+    print(args)
 
+    gen_key(args.output, args.length)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
