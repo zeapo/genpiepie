@@ -50,6 +50,9 @@ def gen_masterpwd(length=128,public=None):
     for i in range(length):
         master.append(items[rand.randrange(0, len(items))])
 
+    symbols = "".join(rand.sample(string.punctuation, 2))
+    master.append(symbols)
+
     master = "".join(master)
 
     if public != None:
@@ -68,17 +71,42 @@ def gen_masterpwd(length=128,public=None):
     else:
         return master
 
-def gen_pwd(user,web,sym1,sym2,masterpwd,strip=4):
+def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
     """ Generates a password for the couple user/website
 
     Keywords arguments:
-    user    -- The username
-    web     -- The website
-    sym1    -- The first symbol to be used as separator
-    sym2    -- The second symbol to be used as separator
-    key     -- The key to be used to gen the password
-    strip   -- The number of characters to be used in each slice of the password (default 4)
+    user            -- The username
+    web             -- The website
+    masterpwd       -- The master password to be used to gen the password,
+                        if masteronfile is true, then masterpwd is the file
+                        containing the master password
+    strip           -- The number of characters to be used in each slice of
+                        the password (default 4)
+    private         -- The private key used to decrypt an encrypted masterpwd
+                        encoded in b64 (default None)
+    masteronfile    -- Means that the masterpwd is on a file (default False)
     """
+
+    if masteronfile:
+        masterpwd = open(masterpwd, 'r').read()
+
+    if private != None:
+        try:
+            priv_file = open(private, 'r')
+
+        except Exception as err:
+            log.error("[gen_pwd] {}".format(err))
+
+        else:
+            priv_key = priv_file.read()
+            rsa_key = rsa.importKey(priv_key)
+            cipher = pkcs.new(rsa_key)
+            masterpwd = base64.b64decode(masterpwd)
+            masterpwd = cipher.decrypt(masterpwd).decode('utf-8')
+
+    sym1 = masterpwd[-2]
+    sym2 = masterpwd[-1]
+    masterpwd = masterpwd[:-2]
 
     h = sha.new()
     h.update(masterpwd.encode('utf-8'))
