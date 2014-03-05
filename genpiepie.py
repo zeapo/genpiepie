@@ -66,7 +66,12 @@ def gen_masterpwd(length=128,public=None):
             pub_key = pub_file.read()
             rsa_key = rsa.importKey(pub_key)
             cipher = pkcs.new(rsa_key)
-            return base64.b64encode(cipher.encrypt(master.encode('utf-8')))
+            try:
+                ciph = cipher.encrypt(master.encode('utf-8'))
+            except Exception as err:
+                log.error("[gen_masterpwd] Error while encrypting the master password : {}".format(err))
+            else:
+                return base64.b64encode(ciph)
 
     else:
         return master
