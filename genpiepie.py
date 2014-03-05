@@ -1,18 +1,37 @@
 #!/usr/bin/python
 import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
+import logging as log
 
-def gen_key(output='privkey.pem', n=2048):
-    
-    if int(n) < 1024:
-        print("[gen_key] insecure key size")
+def gen_key(output='mykey', length=2048):
+    """ Generates a couple of RSA private / public keys
+
+    Keywords arguments:
+    output      -- The prefix used for naming the keys
+    length      -- The length of the key
+    """
+    if int(length) < 1024:
+        log.error("[gen_key] insecure key size")
         return 
 
-    print("[dbg][gen_key] genrate RSA key size {}".format(n))
-    key = rsa.generate(2048)
-    f = open(output,'w')
-    f.write(key.exportKey('PEM'))
-    f.close()
+    log.debug("[gen_key] genrate RSA key size {}".format(length))
+
+    try:
+        key = rsa.generate(int(length), e=65537)
+    except Exception as err:
+        log.error("[gen_key] {}".format(err))
+        return
+
+    priv_output = "{}_priv.pem".format(output)
+    pub_output = "{}_pub.pem".format(output)
+
+    private_key = open(priv_output, 'w')
+    private_key.write(str(key.exportKey('PEM')))
+    private_key.close()
+
+    public_key = open(pub_output, 'w')
+    public_key.write(str(key.publickey().exportKey("PEM")))
+    public_key.close()
 
 def gen_pwd(user,web,sym1,sym2,key,strip=4):
     """ Generates a password for the couple user/website
