@@ -44,7 +44,7 @@ def gen_masterpwd(length=128,public=None):
     public      -- The public key file to use to encrypt the masterkey password (default None)
     """
 
-    items = string.ascii_letters
+    items = string.printable.replace(' ', '')
     master = []
 
     for i in range(length):
@@ -103,6 +103,7 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
             cipher = pkcs.new(rsa_key)
             masterpwd = base64.b64decode(masterpwd)
             masterpwd = cipher.decrypt(masterpwd).decode('utf-8')
+            priv_file.close()
 
     if len(masterpwd) < 3:
         logging.error("[gen_pwd] The master password you gave is too short")
