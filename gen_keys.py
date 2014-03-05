@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import sys, argparse
-from genpiepie import gen_key, gen_masterpwd
+from genpiepie.genpiepie import gen_key, gen_masterpwd
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Generate RSA keys and a masterkey encrypted with the publickey")

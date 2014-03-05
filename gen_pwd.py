@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys, argparse
 from getpass import getpass
-from genpiepie import gen_pwd
+from genpiepie.genpiepie import gen_pwd
 
 
 def main(argv=None):
