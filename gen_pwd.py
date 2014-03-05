@@ -1,10 +1,12 @@
 #!/usr/bin/python
-import sys, argparse
+import sys
+import argparse
 from getpass import getpass
+
 from genpiepie.genpiepie import gen_pwd
 
 
-def main(argv=None):
+def main():
     parser = argparse.ArgumentParser(description="Generate passwords")
 
     parser.add_argument('-u', '--user', help='The username', required=True)
@@ -19,11 +21,12 @@ def main(argv=None):
     if args.masterpwd:
         onfile = True
         masterpwd = args.masterpwd
-    else: 
+    else:
         masterpwd = getpass('Input the master password: ')
 
     print(gen_pwd(args.user, args.website, masterpwd, strip=4,
-        private=args.privatekey, masteronfile=onfile ))
+                  private=args.privatekey, masteronfile=onfile))
+
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())

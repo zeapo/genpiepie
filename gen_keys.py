@@ -1,8 +1,11 @@
 #!/usr/bin/python
-import sys, argparse
+import sys
+import argparse
+
 from genpiepie.genpiepie import gen_key, gen_masterpwd
 
-def main(argv=None):
+
+def main():
     parser = argparse.ArgumentParser(description="Generate RSA keys and a masterkey encrypted with the publickey")
 
     parser.add_argument('--output', help='The prefix of private keys', default='key')
@@ -13,7 +16,7 @@ def main(argv=None):
 
     gen_key(args.output, args.length)
 
-    if args.masterpwd != None:
+    if args.masterpwd is not None:
         key = gen_masterpwd(public="{}_pub.pem".format(args.output))
         try:
             master_key = open(args.masterpwd, 'wb')
@@ -28,4 +31,4 @@ def main(argv=None):
             master_key.close()
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())
