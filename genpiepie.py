@@ -108,7 +108,7 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
         logging.error("[gen_pwd] The master password you gave is too short")
         return
 
-    if len(masterpwd) < 10):
+    if len(masterpwd) < 10:
         logging.warning("[gen_pwd] The master password you gave is short, please consider using a longer one")
 
     sym1 = masterpwd[-2]
