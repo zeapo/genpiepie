@@ -5,7 +5,7 @@ from genpiepie import gen_key
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Generate RSA keys")
 
-    parser.add_argument('--output', help='The output file name', default='privkey.pem')
+    parser.add_argument('--output', help='The prefix of private keys', default='key')
     parser.add_argument('--length', help='The length of the key', default=2048)
 
     args = parser.parse_args()
