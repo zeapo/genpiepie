@@ -104,6 +104,13 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
             masterpwd = base64.b64decode(masterpwd)
             masterpwd = cipher.decrypt(masterpwd).decode('utf-8')
 
+    if len(masterpwd) < 3:
+        logging.error("[gen_pwd] The master password you gave is too short")
+        return
+
+    if len(masterpwd) < 10):
+        logging.warning("[gen_pwd] The master password you gave is short, please consider using a longer one")
+
     sym1 = masterpwd[-2]
     sym2 = masterpwd[-1]
     masterpwd = masterpwd[:-2]
