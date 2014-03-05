@@ -7,16 +7,16 @@ def main(argv=None):
 
     parser.add_argument('--output', help='The prefix of private keys', default='key')
     parser.add_argument('--length', help='The length of the key', default=2048)
-    parser.add_argument('--masterkey', help='A randomly generated masterkey, encoded in b64')
+    parser.add_argument('--masterpwd', help='A randomly generated master password, encoded in b64')
 
     args = parser.parse_args()
 
     gen_key(args.output, args.length)
 
-    if args.masterkey != None:
+    if args.masterpwd != None:
         key = gen_masterpwd(public="{}_pub.pem".format(args.output))
         try:
-            master_key = open(args.masterkey, 'wb')
+            master_key = open(args.masterpwd, 'wb')
 
         except Exception as err:
             print("There was a problem: {}", err)
