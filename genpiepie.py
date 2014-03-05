@@ -1,7 +1,9 @@
 #!/usr/bin/python
 import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
+import Crypto.Random.random as rand
 import logging as log
+import string
 
 def gen_key(output='mykey', length=2048):
     """ Generates a couple of RSA private / public keys
@@ -32,6 +34,21 @@ def gen_key(output='mykey', length=2048):
     public_key = open(pub_output, 'w')
     public_key.write(str(key.publickey().exportKey("PEM")))
     public_key.close()
+
+def gen_masterpwd(length=128):
+    """ Generates a random masterkey password
+
+    Keywords arguments:
+    length      -- The length of the masterkey password we want
+    """
+
+    items = string.printable
+    master = []
+
+    for i in range(length):
+        master.append(items[rand.randrange(0, len(items))])
+
+    return "".join(master)
 
 def gen_pwd(user,web,sym1,sym2,key,strip=4):
     """ Generates a password for the couple user/website
