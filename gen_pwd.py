@@ -12,7 +12,7 @@ def main(argv=None):
 
     args = parser.parse_args()
 
-    key = getpass('Input the KEY: ')
+    masterpwd = getpass('Input the master password: ')
 
     if sys.version_info >= (3,0):
         sym1 = str(input('Input the first symbol: '))
@@ -21,7 +21,7 @@ def main(argv=None):
         sym1 = str(raw_input('Input the first symbol: '))
         sym2 = str(raw_input('Input the first symbol: '))
 
-    print(gen_pwd(args.user, args.website, sym1, sym2, key))
+    print(gen_pwd(args.user, args.website, sym1, sym2, masterpwd))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))

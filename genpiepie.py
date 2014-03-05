@@ -68,7 +68,7 @@ def gen_masterpwd(length=128,public=None):
     else:
         return master
 
-def gen_pwd(user,web,sym1,sym2,key,strip=4):
+def gen_pwd(user,web,sym1,sym2,masterpwd,strip=4):
     """ Generates a password for the couple user/website
 
     Keywords arguments:
@@ -81,7 +81,7 @@ def gen_pwd(user,web,sym1,sym2,key,strip=4):
     """
 
     h = sha.new()
-    h.update(key.encode('utf-8'))
+    h.update(masterpwd.encode('utf-8'))
     h.update(user.encode('utf-8'))
     h.update('@'.encode('utf-8'))
     h.update(web.encode('utf-8'))

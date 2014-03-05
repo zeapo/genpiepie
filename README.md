@@ -16,7 +16,7 @@ and the symbols. We offer a simple script to use this function easily:
         -u USER, --user USER  The username
         -w WEBSITE, --website WEBSITE The website
 
-Combining multiple couples of usernames and websites with a single couple of
+Combining multiple couples of username and website with a single couple of
 `master_password` and symbols, one has only to remember the later to generate
 any password he wants again and again. However, this `master_password` is a
 security point of failure, hence a long and hard to find one is a must. 
