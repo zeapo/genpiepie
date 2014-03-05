@@ -1,9 +1,10 @@
 #!/usr/bin/python
 import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
+import Crypto.Cipher.PKCS1_OAEP as pkcs
 import Crypto.Random.random as rand
 import logging as log
-import string
+import string, base64
 
 def gen_key(output='mykey', length=2048):
     """ Generates a couple of RSA private / public keys
@@ -19,7 +20,7 @@ def gen_key(output='mykey', length=2048):
     log.debug("[gen_key] genrate RSA key size {}".format(length))
 
     try:
-        key = rsa.generate(int(length), e=65537)
+        key = rsa.generate(int(length))
     except Exception as err:
         log.error("[gen_key] {}".format(err))
         return
@@ -27,28 +28,45 @@ def gen_key(output='mykey', length=2048):
     priv_output = "{}_priv.pem".format(output)
     pub_output = "{}_pub.pem".format(output)
 
-    private_key = open(priv_output, 'w')
-    private_key.write(str(key.exportKey('PEM')))
+    private_key = open(priv_output, 'wb')
+    private_key.write(key.exportKey('PEM'))
     private_key.close()
 
-    public_key = open(pub_output, 'w')
-    public_key.write(str(key.publickey().exportKey("PEM")))
+    public_key = open(pub_output, 'wb')
+    public_key.write(key.publickey().exportKey("PEM"))
     public_key.close()
 
-def gen_masterpwd(length=128):
-    """ Generates a random masterkey password
+def gen_masterpwd(length=128,public=None):
+    """ Generates a random masterkey password and optionaly encrypt it
 
     Keywords arguments:
-    length      -- The length of the masterkey password we want
+    length      -- The length of the masterkey password we want (default 128)
+    public      -- The public key file to use to encrypt the masterkey password (default None)
     """
 
-    items = string.printable
+    items = string.ascii_letters
     master = []
 
     for i in range(length):
         master.append(items[rand.randrange(0, len(items))])
 
-    return "".join(master)
+    master = "".join(master)
+
+    if public != None:
+        try:
+            pub_file = open(public, 'r')
+
+        except Exception as err:
+            log.error("[gen_masterpwd] {}".format(err))
+
+        else:
+            pub_key = pub_file.read()
+            rsa_key = rsa.importKey(pub_key)
+            cipher = pkcs.new(rsa_key)
+            return base64.b64encode(cipher.encrypt(master.encode('utf-8')))
+
+    else:
+        return master
 
 def gen_pwd(user,web,sym1,sym2,key,strip=4):
     """ Generates a password for the couple user/website
