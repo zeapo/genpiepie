@@ -18,17 +18,12 @@ def main(argv=None):
 
     if args.masterpwd:
         onfile = True
+        masterpwd = args.masterpwd
     else: 
         masterpwd = getpass('Input the master password: ')
 
-    if sys.version_info >= (3,0):
-        sym1 = str(input('Input the first symbol: '))
-        sym2 = str(input('Input the first symbol: '))
-    else:
-        sym1 = str(raw_input('Input the first symbol: '))
-        sym2 = str(raw_input('Input the first symbol: '))
-
-    print(gen_pwd(args.user, args.website, sym1, sym2, masterpwd))
+    print(gen_pwd(args.user, args.website, masterpwd, strip=4,
+        private=args.privatekey, masteronfile=onfile ))
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
