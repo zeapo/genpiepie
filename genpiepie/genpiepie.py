@@ -4,7 +4,9 @@ import Crypto.PublicKey.RSA as rsa
 import Crypto.Cipher.PKCS1_OAEP as pkcs
 import Crypto.Random.random as rand
 import logging as log
-import string, base64
+import string
+import base64
+
 
 def gen_key(output='mykey', length=2048):
     """ Generates a couple of RSA private / public keys
@@ -15,7 +17,7 @@ def gen_key(output='mykey', length=2048):
     """
     if int(length) < 1024:
         log.error("[gen_key] insecure key size")
-        return 
+        return
 
     log.debug("[gen_key] genrate RSA key size {}".format(length))
 
@@ -36,7 +38,8 @@ def gen_key(output='mykey', length=2048):
     public_key.write(key.publickey().exportKey("PEM"))
     public_key.close()
 
-def gen_masterpwd(length=128,public=None):
+
+def gen_masterpwd(length=128, public=None):
     """ Generates a random masterkey password and optionaly encrypt it
 
     Keywords arguments:
@@ -55,7 +58,7 @@ def gen_masterpwd(length=128,public=None):
 
     master = "".join(master)
 
-    if public != None:
+    if public is not None:
         try:
             pub_file = open(public, 'r')
 
@@ -76,7 +79,8 @@ def gen_masterpwd(length=128,public=None):
     else:
         return master
 
-def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
+
+def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, version=-1):
     """ Generates a password for the couple user/website
 
     Keywords arguments:
@@ -95,7 +99,7 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
     if masteronfile:
         masterpwd = open(masterpwd, 'r').read()
 
-    if private != None:
+    if private is not None:
         try:
             priv_file = open(private, 'r')
 
@@ -111,11 +115,11 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
             priv_file.close()
 
     if len(masterpwd) < 3:
-        logging.error("[gen_pwd] The master password you gave is too short")
+        log.error("[gen_pwd] The master password you gave is too short")
         return
 
     if len(masterpwd) < 10:
-        logging.warning("[gen_pwd] The master password you gave is short, please consider using a longer one")
+        log.warning("[gen_pwd] The master password you gave is short, please consider using a longer one")
 
     sym1 = masterpwd[-2]
     sym2 = masterpwd[-1]
@@ -126,15 +130,20 @@ def gen_pwd(user,web,masterpwd,strip=6,private=None,masteronfile=False):
     h.update(user.encode('utf-8'))
     h.update('@'.encode('utf-8'))
     h.update(web.encode('utf-8'))
+
+    # This allows us to generate multiple passwords with the same couples
+    if version >= 0:
+        h.update(masterpwd[version % len(masterpwd)])
+
     digest = h.hexdigest()
 
     return "{}{}{}{}{}".format(
-            digest[:strip].upper(),
-            sym1,
-            digest[
-                    int(len(digest)/2) - int(strip/2):
-                    int(len(digest)/2) + int(strip/2)
-                   ],
-            sym2,
-            digest[-strip:].lower()
-            )
+        digest[:strip].upper(),
+        sym1,
+        digest[
+        int(len(digest) / 2) - int(strip / 2):
+        int(len(digest) / 2) + int(strip / 2)
+        ],
+        sym2,
+        digest[-strip:].lower()
+    )
