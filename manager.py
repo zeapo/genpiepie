@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import re
 
@@ -155,7 +157,7 @@ class Manager():
 
     def generate(self, options=None):
         if not self.isInitialized:
-            print("The manager is now initialized, use the help command to see how to do it.")
+            print("The manager is not initialized, use the help command to see how to do it.")
             return
 
         options = options.split()
@@ -167,7 +169,7 @@ class Manager():
         command = "init"
         print("Type exit to stop the shell")
         pattern = re.compile("^(\w+)(\s+[\w]+){0,2}$")
-        while command != "exit":
+        while True:
             command = input("> ")
             try:
                 cmd = re.findall(pattern, command)
@@ -187,16 +189,18 @@ class Manager():
 
             if cmd[0] == "help":
                 if len(cmd) > 1:
-                    self.showHelp(cmd[1])
+                    self.showHelp(cmd[1].strip())
                 else:
                     self.showHelp()
             elif cmd[0] == "init":
                 self.initialize()
             elif cmd[0] == "gen":
                 if len(cmd) > 1:
-                    self.generate(cmd[1])
+                    self.generate(cmd[1].strip())
                 else:
                     self.generate()
+            elif cmd[0] == "exit":
+                break
             else:
                 print("Not Implemented Yet")
 
