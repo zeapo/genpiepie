@@ -1,13 +1,15 @@
 #!/usr/bin/python
+import logging as log
+import string
+import base64
+import json
+
 import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
 import Crypto.Cipher.PKCS1_OAEP as pkcs
 import Crypto.Random.random as rand
 import Crypto.Signature.PKCS1_v1_5 as pkcs_sgn
-import logging as log
-import string
-import base64
-import json
+
 
 def gen_key(output='mykey', length=2048):
     """ Generates a couple of RSA private / public keys
@@ -38,6 +40,21 @@ def gen_key(output='mykey', length=2048):
     public_key = open(pub_output, 'wb')
     public_key.write(key.publickey().exportKey("PEM"))
     public_key.close()
+
+
+def get_key_length(privatekey):
+    """ Returns the length of a private key
+
+    Keywords arguments:
+    privatekey      -- The file containing the private key
+    """
+    try:
+        priv_key = open(privatekey).read()
+    except Exception as err:
+        log.error("[get_key_length] {}".format(err))
+    else:
+        rsa_key = rsa.importKey(priv_key)
+        return rsa_key.size()
 
 
 def gen_masterpwd(length=128, public=None):
