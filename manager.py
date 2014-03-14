@@ -5,6 +5,8 @@ import re
 import argparse
 import os.path
 import pyperclip as pyclip
+import shelve
+import Crypto.Hash.SHA as sha
 
 from genpiepie.genpiepie import *
 
@@ -28,6 +30,7 @@ class Manager():
         self.privatekey = None
         self.publickey = None
         self.masterpwd = None
+        self.couples = None
 
         if workingdir != "./":
             if os.path.isdir(workingdir):
@@ -84,6 +87,16 @@ No master password was provided. You will have to generate one through the comma
                 raise Exception("The provided master password file is not a regular file")
 
 
+        #everything is ready! Create the list of couples if it does not exist
+        self.couples = "{}/couples.db".format(self.workingdir)
+
+        try:
+            self.db = shelve.open(self.couples, writeback=True)
+        except Exception as err:
+            print("Problem while initializing the database: {}",err)
+
+
+
     @property
     def isInitialized(self):
         return self.privatekey is not None and \
@@ -124,7 +137,7 @@ You can use either of the following options with the `gen` command:
                             The couple user:website has to be in the list, if it
                             is not this option is equivalent to `new`.
 
-Both these options accept
+If you give no option (neither new, nor regen), the option {red}{bold}new{end} will be considered.
 
 Example:
 {cyan}gen new myUberuser myWebiste.com{end}
@@ -212,27 +225,69 @@ length of both the RSA key and the master password.
         # the encrypted master password can be stored in memory with no issue
         self.masterpwd = self.masterpwd.decode('ascii')
 
+
     def generate(self, options=None):
         if not self.isInitialized:
             print("The manager is not initialized, use the help command to see how to do it.")
             return
 
         options = options.split()
-        if len(options) > 2:
+
+        if options[0] == "new" and len(options) == 3:
+            cmd = "new"
+        elif options[0] == "regen" and len(options) == 3:
+            cmd = "regen"
+        elif len(options) > 2:
             print("Too many options, please provide a user and a website.")
             return
-
-        if len(options) < 2:
+        elif len(options) < 2:
             print("Too few options, please provide a user and a website.")
             return
-
-        pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
-
-        copyto = input("Copy to clipboard? [y/N] ")
-        if copyto.lower() == "y" or copyto.lower() == "yes":
-            pyclip.setcb(pwd)
         else:
-            print("Your password is: {}".format(pwd))
+            cmd = "new"
+
+        if cmd == "new":
+            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
+
+            copyto = input("Copy to clipboard? [y/N] ")
+            if copyto.lower() == "y" or copyto.lower() == "yes":
+                pyclip.setcb(pwd)
+            else:
+                print("Your password is: {}".format(pwd))
+
+            h = sha.new()
+            h.update("{}@{}".format(options[0],options[1]).encode('utf-8'))
+            id = h.hexdigest()
+            cpl = {
+                "user": options[0].strip(),
+                "web": options[1].strip()
+            }
+
+            if id in self.db:
+                overw = input("The couple {}:{} is already in the database, do you want to overwrite it? [y/N] ".
+                              format(cpl['user'], cpl['web']))
+                if overw.lower() == "y" or overw.lower() == "yes":
+                    self.db[id] = cpl
+            else:
+                self.db[id] = cpl
+                
+
+        else:
+            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
+
+            copyto = input("Copy to clipboard? [y/N] ")
+            if copyto.lower() == "y" or copyto.lower() == "yes":
+                pyclip.setcb(pwd)
+            else:
+                print("Your password is: {}".format(pwd))
+
+
+    def list(self):
+        for id in self.db:
+            cpl = self.db[id]
+            print("User   : {}".format(cpl['user']))
+            print("Website: {}".format(cpl['web']))
+            print("--------")
 
     def run(self):
         command = "init"
@@ -268,7 +323,10 @@ Use {bold}{red}help{end} to see how to use the manager.
                     self.generate(cmd[1].strip())
                 else:
                     self.generate()
+            elif cmd[0] == "list" or cmd[0] == "l":
+                self.list()
             elif cmd[0] == "exit" or cmd[0] == "q":
+                self.db.close()
                 break
             else:
                 print("Not Implemented Yet")
