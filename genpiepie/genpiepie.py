@@ -33,13 +33,11 @@ def gen_key(output='mykey', length=2048):
     priv_output = "{}_priv.pem".format(output)
     pub_output = "{}_pub.pem".format(output)
 
-    private_key = open(priv_output, 'wb')
-    private_key.write(key.exportKey('PEM'))
-    private_key.close()
+    with open(priv_output, 'wb') as private_key:
+        private_key.write(key.exportKey('PEM'))
 
-    public_key = open(pub_output, 'wb')
-    public_key.write(key.publickey().exportKey("PEM"))
-    public_key.close()
+    with open(pub_output, 'wb') as public_key:
+        public_key.write(key.publickey().exportKey("PEM"))
 
 
 def get_key_length(privatekey):
@@ -93,6 +91,8 @@ def gen_masterpwd(length=128, public=None):
                 log.error("[gen_masterpwd] Error while encrypting the master password : {}".format(err))
             else:
                 return base64.b64encode(ciph)
+        finally:
+            pub_file.close()
 
     else:
         return master

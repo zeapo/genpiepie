@@ -198,10 +198,10 @@ length of both the RSA key and the master password.
 
         self.masterpwd = gen_masterpwd(length=mpwdLength, public=self.publickey)
 
-        mpwfe = open(mpwdFile, 'wb')
-        mpwfe.write(self.masterpwd)
-        mpwfe.write(b'\n')
-        mpwfe.close()
+        with open(mpwdFile, 'wb') as mpwfe:
+            mpwfe.write(self.masterpwd)
+            mpwfe.write(b'\n')
+            mpwfe.close()
 
         # the encrypted master password can be stored in memory with no issue
         self.masterpwd = self.masterpwd.decode('ascii')
