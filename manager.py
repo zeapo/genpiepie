@@ -23,6 +23,38 @@ class fmt:
     UNDERLINE = '\033[4m'
     END = '\033[0m'
 
+class DataManager():
+    def __init__(self, filename):
+        try:
+            self.db = shelve.open(filename, writeback=True)
+        except Exception as err:
+            print("Problem while initializing the database: {}",err)
+
+    def storeInDB(self, user, website):
+        """" Stores the couple User/Website in the database
+
+        Uses an sha on user@website as an index
+        """
+        h = sha.new()
+        h.update("{}@{}".format(user,website).encode('utf-8'))
+        id = h.hexdigest()
+        cpl = {
+            "user": user.strip(),
+            "web": website.strip()
+        }
+
+        if id in self.db:
+            overw = input("The couple {}:{} is already in the database, do you want to overwrite it? [y/N] ".
+                          format(cpl['user'], cpl['web']))
+            if overw.lower() == "y" or overw.lower() == "yes":
+                self.db[id] = cpl
+        else:
+            self.db[id] = cpl
+
+    def listContent(self):
+        """ Returns a list containing all the database
+        """
+        return [self.db[id] for id in self.db]
 
 class Manager():
     def __init__(self, workingdir="./", privatekeyfile=None, publickeyfile=None, masterpwdfile=None):
@@ -89,11 +121,8 @@ No master password was provided. You will have to generate one through the comma
 
         #everything is ready! Create the list of couples if it does not exist
         self.couples = "{}/couples.db".format(self.workingdir)
+        self.db = DataManager(self.couples)
 
-        try:
-            self.db = shelve.open(self.couples, writeback=True)
-        except Exception as err:
-            print("Problem while initializing the database: {}",err)
 
 
 
@@ -255,21 +284,7 @@ length of both the RSA key and the master password.
             else:
                 print("Your password is: {}".format(pwd))
 
-            h = sha.new()
-            h.update("{}@{}".format(options[0],options[1]).encode('utf-8'))
-            id = h.hexdigest()
-            cpl = {
-                "user": options[0].strip(),
-                "web": options[1].strip()
-            }
-
-            if id in self.db:
-                overw = input("The couple {}:{} is already in the database, do you want to overwrite it? [y/N] ".
-                              format(cpl['user'], cpl['web']))
-                if overw.lower() == "y" or overw.lower() == "yes":
-                    self.db[id] = cpl
-            else:
-                self.db[id] = cpl
+            self.db.storeInDB(options[0],options[1])
                 
 
         else:
@@ -283,8 +298,7 @@ length of both the RSA key and the master password.
 
 
     def list(self):
-        for id in self.db:
-            cpl = self.db[id]
+        for cpl in self.db.listContent():
             print("User   : {}".format(cpl['user']))
             print("Website: {}".format(cpl['web']))
             print("--------")
