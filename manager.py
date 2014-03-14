@@ -4,6 +4,7 @@ import sys
 import re
 import argparse
 import os.path
+import pyperclip as pyclip
 
 from genpiepie.genpiepie import *
 
@@ -77,7 +78,8 @@ No master password was provided. You will have to generate one through the comma
                 raise Exception("The provided public key file is not a regular file")
 
             if os.path.isfile(masterpwdfile):
-                self.masterpwd = masterpwdfile
+                with open(masterpwdfile, 'r') as m:
+                    self.masterpwd = m.read()
             else:
                 raise Exception("The provided master password file is not a regular file")
 
@@ -169,6 +171,7 @@ length of both the RSA key and the master password.
                 if keylength % 8 != 0:
                     print("The length of the key has to be a multiple of 8, we suggest 2048 or 4096 bits keys.")
 
+            keysprefix = "{}/{}".format(self.workingdir,keysprefix)
             gen_key(output=keysprefix, length=keylength)
 
             #we do not need to store their values in memory, only the file name is required
@@ -177,7 +180,9 @@ length of both the RSA key and the master password.
         else:
             keylength = get_key_length(self.privatekey)
 
-        mpwdFile = input("Name of the master password file: ")
+        mpwdFile = input("Name of the master password file: [mpw]")
+        if mpwdFile == "":
+            mpwdFile = "mpw"
 
         mpwdLength = 5
         while mpwdLength < 10 and mpwdLength < (keylength / 8 - 2):
@@ -198,6 +203,7 @@ length of both the RSA key and the master password.
 
         self.masterpwd = gen_masterpwd(length=mpwdLength, public=self.publickey)
 
+        mpwdFile = "{}/{}".format(self.workingdir,mpwdFile)
         with open(mpwdFile, 'wb') as mpwfe:
             mpwfe.write(self.masterpwd)
             mpwfe.write(b'\n')
@@ -216,10 +222,22 @@ length of both the RSA key and the master password.
             print("Too many options, please provide a user and a website.")
             return
 
+        if len(options) < 2:
+            print("Too few options, please provide a user and a website.")
+            return
+
+        pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
+
+        copyto = input("Copy to clipboard? [y/N] ")
+        if copyto.lower() == "y" or copyto.lower() == "yes":
+            pyclip.setcb(pwd)
+        else:
+            print("Your password is: {}".format(pwd))
+
     def run(self):
         command = "init"
         print("Type exit to stop the shell")
-        pattern = re.compile("^\s*(\w+)(\s+[\w]+){0,2}$")
+        pattern = re.compile("^\s*(\w+)\s*(.*)$")
         while True:
             command = input("> ")
             try:
@@ -245,12 +263,12 @@ Use {bold}{red}help{end} to see how to use the manager.
                     self.showHelp()
             elif cmd[0] == "init":
                 self.initialize()
-            elif cmd[0] == "gen":
+            elif cmd[0] == "gen" or cmd[0] == "g":
                 if len(cmd) > 1:
                     self.generate(cmd[1].strip())
                 else:
                     self.generate()
-            elif cmd[0] == "exit":
+            elif cmd[0] == "exit" or cmd[0] == "q":
                 break
             else:
                 print("Not Implemented Yet")
@@ -279,12 +297,12 @@ def main(argv=None):
         print("We will be unable to generate any password without the private key")
         return 3
 
-    if args.workingidr is None:
+    if args.workingdir is None:
         print(
             "Warning: You didn't specify a working directory, this means that everything will be stored in the current directory")
         workingdir = "./"
     else:
-        workingdir = args.workingidr
+        workingdir = args.workingdir
 
     manager = Manager(workingdir=workingdir, privatekeyfile=args.privatekey, publickeyfile=args.publickey,
                       masterpwdfile=args.masterpwd)
