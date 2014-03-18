@@ -5,7 +5,7 @@ import re
 import argparse
 import os.path
 import pyperclip as pyclip
-import shelve
+import json
 import dataset
 import Crypto.Hash.SHA as sha
 
@@ -65,6 +65,7 @@ class Manager():
         self.privatekey = None
         self.publickey = None
         self.masterpwd = None
+        self.masterpwdIsAFile = True
         self.couples = None
 
         if workingdir != "./":
@@ -72,6 +73,22 @@ class Manager():
                 self.workingdir = workingdir
             else:
                 raise Exception("{} is not a valid directory".format(workingdir))
+
+        if os.path.exists("{}/conf.json".format(self.workingdir)):
+            jconf = dict()
+            with open("{}/conf.json".format(self.workingdir), 'r') as jc:
+                jconf = json.load(jc)
+
+            if privatekeyfile is None and 'priv' in jconf:
+                privatekeyfile = jconf['priv']
+
+            if publickeyfile is None and 'pub' in jconf:
+                publickeyfile = jconf['pub']
+
+            if masterpwdfile is None and 'mpwd' in jconf:
+                masterpwdfile = ""
+                self.masterpwd = jconf['mpwd']
+                self.masterpwdIsAFile = False
 
         if privatekeyfile is None and \
                         publickeyfile is None and \
@@ -103,7 +120,9 @@ No master password was provided. You will have to generate one through the comma
 
             privatekeyfile.replace('~', os.path.expanduser('~'))
             publickeyfile.replace('~', os.path.expanduser('~'))
-            masterpwdfile.replace('~', os.path.expanduser('~'))
+
+            if self.masterpwdIsAFile:
+                masterpwdfile.replace('~', os.path.expanduser('~'))
 
             if os.path.isfile(privatekeyfile):
                 self.privatekey = privatekeyfile
@@ -115,11 +134,12 @@ No master password was provided. You will have to generate one through the comma
             else:
                 raise Exception("The provided public key file is not a regular file")
 
-            if os.path.isfile(masterpwdfile):
-                with open(masterpwdfile, 'r') as m:
-                    self.masterpwd = m.read()
-            else:
-                raise Exception("The provided master password file is not a regular file")
+            if self.masterpwdIsAFile:
+                if os.path.isfile(masterpwdfile):
+                    with open(masterpwdfile, 'r') as m:
+                        self.masterpwd = m.read()
+                else:
+                    raise Exception("The provided master password file is not a regular file")
 
 
         #everything is ready! Create the list of couples if it does not exist
@@ -199,6 +219,7 @@ we generate a master password and save it under a name that you provide. You can
 length of both the RSA key and the master password.
         """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED, cyan=fmt.CYAN))
 
+        jconf = dict()
         if self.privatekey is None and \
                         self.publickey is None:
 
@@ -230,6 +251,9 @@ length of both the RSA key and the master password.
             #we do not need to store their values in memory, only the file name is required
             self.privatekey = "{}_priv.pem".format(keysprefix)
             self.publickey = "{}_pub.pem".format(keysprefix)
+
+            jconf['priv'] = self.privatekey
+            jconf['pub'] = self.publickey
         else:
             keylength = get_key_length(self.privatekey)
 
@@ -264,6 +288,12 @@ length of both the RSA key and the master password.
 
         # the encrypted master password can be stored in memory with no issue
         self.masterpwd = self.masterpwd.decode('ascii')
+        self.masterpwdIsAFile = False
+
+        jconf['mpwd'] = self.masterpwd
+
+        with open("{}/conf.json".format(self.workingdir), "w") as jc:
+            json.dump(jconf, jc)
 
 
     def generate(self, options=None):
