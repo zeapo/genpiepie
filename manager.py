@@ -295,13 +295,7 @@ length of both the RSA key and the master password.
                 
 
         else:
-            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
-
-            copyto = input("Copy to clipboard? [y/N] ")
-            if copyto.lower() == "y" or copyto.lower() == "yes":
-                pyclip.setcb(pwd)
-            else:
-                print("Your password is: {}".format(pwd))
+            print("Not Yet Implemented")
 
 
     def list(self):
