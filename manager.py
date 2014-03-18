@@ -6,6 +6,7 @@ import argparse
 import os.path
 import pyperclip as pyclip
 import shelve
+import dataset
 import Crypto.Hash.SHA as sha
 
 from genpiepie.genpiepie import *
@@ -26,35 +27,35 @@ class fmt:
 class DataManager():
     def __init__(self, filename):
         try:
-            self.db = shelve.open(filename, writeback=True)
+            self.db = dataset.connect('sqlite:///:memory:')
+            self.table = self.db.get_table('couples', primary_id='id', primary_type='String')
         except Exception as err:
             print("Problem while initializing the database: {}",err)
 
-    def storeInDB(self, user, website):
+    def storeInDB(self, user, website, version=-1):
         """" Stores the couple User/Website in the database
 
         Uses an sha on user@website as an index
         """
         h = sha.new()
         h.update("{}@{}".format(user,website).encode('utf-8'))
-        id = h.hexdigest()
-        cpl = {
-            "user": user.strip(),
-            "web": website.strip()
-        }
 
-        if id in self.db:
-            overw = input("The couple {}:{} is already in the database, do you want to overwrite it? [y/N] ".
-                          format(cpl['user'], cpl['web']))
-            if overw.lower() == "y" or overw.lower() == "yes":
-                self.db[id] = cpl
-        else:
-            self.db[id] = cpl
+        self.table.upsert(
+            dict(
+                id = h.hexdigest(),
+                user = user.strip(),
+                web  = website.strip(),
+                ver  = version
+            ), keys=['id', 'user', 'web', 'ver'])
 
     def listContent(self):
         """ Returns a list containing all the database
         """
-        return [self.db[id] for id in self.db]
+        # return [self.db[id] for id in self.db]
+        return self.table.all()
+
+    def find(self, hash):
+        return self.table.find_one(id = hash)
 
 class Manager():
     def __init__(self, workingdir="./", privatekeyfile=None, publickeyfile=None, masterpwdfile=None):
@@ -217,12 +218,12 @@ length of both the RSA key and the master password.
             gen_key(output=keysprefix, length=keylength)
 
             #we do not need to store their values in memory, only the file name is required
-            self.privatekey = "{}_pub.pem".format(keysprefix)
+            self.privatekey = "{}_priv.pem".format(keysprefix)
             self.publickey = "{}_pub.pem".format(keysprefix)
         else:
             keylength = get_key_length(self.privatekey)
 
-        mpwdFile = input("Name of the master password file: [mpw]")
+        mpwdFile = input("Name of the master password file: [mpw] ")
         if mpwdFile == "":
             mpwdFile = "mpw"
 
@@ -303,6 +304,37 @@ length of both the RSA key and the master password.
             print("Website: {}".format(cpl['web']))
             print("--------")
 
+    def find(self, string):
+        ids = []
+        i = 0
+        for cpl in self.db.listContent():
+            if string in cpl['user'] or string in cpl['web']:
+                print("Couple", i + 1)
+                print("User   : {}".format(cpl['user']))
+                print("Website: {}".format(cpl['web']))
+                ids.append(cpl['id'])
+                i += 1
+
+        if i > 0:
+            yn = 1
+            try: 
+                yn = input("Which couple do you want to generate the password for? [{}] ".format(yn))
+                yn = int(yn)
+            except Exception as err:
+                print("Problem with your input", err)
+                return
+                    
+            if yn > 0 and yn <= len(ids):
+                cpl = self.db.find(ids[yn - 1])
+                pwd = gen_pwd(cpl['user'], cpl['web'], self.masterpwd, private=self.privatekey)
+
+                copyto = input("Copy to clipboard? [y/N] ")
+                if copyto.lower() == "y" or copyto.lower() == "yes":
+                    pyclip.setcb(pwd)
+                else:
+                    print("Your password is: {}".format(pwd))
+                
+
     def run(self):
         command = "init"
         print("Type exit to stop the shell")
@@ -339,8 +371,12 @@ Use {bold}{red}help{end} to see how to use the manager.
                     self.generate()
             elif cmd[0] == "list" or cmd[0] == "l":
                 self.list()
+            elif cmd[0] == "find" or cmd[0] == "f":
+                if len(cmd) > 1:
+                    self.find(cmd[1].strip())
+                else:
+                    self.list()
             elif cmd[0] == "exit" or cmd[0] == "q":
-                self.db.close()
                 break
             else:
                 print("Not Implemented Yet")
