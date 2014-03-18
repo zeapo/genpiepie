@@ -143,12 +143,16 @@ No master password was provided. You will have to generate one through the comma
         if command is None or command == '':
             print("""
 There are two available commands:
-* {red}{bold}list{end}      -- Lists available user/website couples
-* {red}{bold}gen{end}       -- Generate a password for a user/website couple
-* {red}{bold}security{end}  -- Generate a pair of keys and/or a master password.
+* {red}{bold}list{end}        or {red}{bold}l{end}    -- Lists available user/website couples
+* {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
+* {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
+* {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
+* [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
                                Provide a pair of keys and/or a master password.
-* {red}{bold}init{end}      -- Same as {red}{bold}security{end}, except that it is
+* {red}{bold}init{end}                -- Same as {red}{bold}security{end}, except that it is
                guided (no options to provide, just follow the guide)
+* {red}{bold}help{end}        or {red}{bold}h{end}    -- Shows this help
+* {red}{bold}quit{end}        or {red}{bold}q{end}    -- Exits the manager
 
 If you do not already have a pair of keys and a master password, you have
 to generate them first before being able to use the other commands.
@@ -358,25 +362,33 @@ Use {bold}{red}help{end} to see how to use the manager.
             else:
                 cmd = cmd[0]
 
-            if cmd[0] == "help":
+            if cmd[0] == "help" or cmd[0] == "h":
                 if len(cmd) > 1:
                     self.showHelp(cmd[1].strip())
                 else:
                     self.showHelp()
+
             elif cmd[0] == "init":
                 self.initialize()
+
             elif cmd[0] == "gen" or cmd[0] == "g":
                 if len(cmd) > 1 and cmd[1] != '':
                     self.generate(cmd[1].strip())
                 else:
                     self.generate()
+
             elif cmd[0] == "list" or cmd[0] == "l":
                 self.list()
+
             elif cmd[0] == "find" or cmd[0] == "f":
                 if len(cmd) > 1:
                     self.find(cmd[1].strip())
                 else:
                     self.find('')
+
+            elif cmd[0] == "clean" or cmd[0] == "c":
+                pyclip.setcb("the password was here")
+
             elif cmd[0] == "exit" or cmd[0] == "q":
                 break
             else:
