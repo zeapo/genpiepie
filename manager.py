@@ -26,11 +26,13 @@ class fmt:
 
 class DataManager():
     def __init__(self, filename):
+
         try:
-            self.db = dataset.connect('sqlite:///:memory:')
+            self.db = dataset.connect("sqlite:///{}".format(filename))
             self.table = self.db.get_table('couples', primary_id='id', primary_type='String')
         except Exception as err:
             print("Problem while initializing the database: {}",err)
+            raise Exception("Unrecoverable error")
 
     def storeInDB(self, user, website, version=-1):
         """" Stores the couple User/Website in the database
@@ -122,7 +124,11 @@ No master password was provided. You will have to generate one through the comma
 
         #everything is ready! Create the list of couples if it does not exist
         self.couples = "{}/couples.db".format(self.workingdir)
-        self.db = DataManager(self.couples)
+        try:
+            self.db = DataManager(self.couples)
+        except Exception as err:
+            print(err)
+            sys.exit(0)
 
 
 
@@ -318,8 +324,9 @@ length of both the RSA key and the master password.
         if i > 0:
             yn = 1
             try: 
-                yn = input("Which couple do you want to generate the password for? [{}] ".format(yn))
-                yn = int(yn)
+                inp = input("Which couple do you want to generate the password for? [{}] ".format(yn))
+                if inp != '':
+                    yn = int(inp)
             except Exception as err:
                 print("Problem with your input", err)
                 return
@@ -365,7 +372,7 @@ Use {bold}{red}help{end} to see how to use the manager.
             elif cmd[0] == "init":
                 self.initialize()
             elif cmd[0] == "gen" or cmd[0] == "g":
-                if len(cmd) > 1:
+                if len(cmd) > 1 and cmd[1] != '':
                     self.generate(cmd[1].strip())
                 else:
                     self.generate()
@@ -375,7 +382,7 @@ Use {bold}{red}help{end} to see how to use the manager.
                 if len(cmd) > 1:
                     self.find(cmd[1].strip())
                 else:
-                    self.list()
+                    self.find('')
             elif cmd[0] == "exit" or cmd[0] == "q":
                 break
             else:
