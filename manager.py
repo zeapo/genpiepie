@@ -60,7 +60,7 @@ class DataManager():
         return self.table.find_one(id = hash)
 
 class Manager():
-    def __init__(self, workingdir="./", privatekeyfile=None, publickeyfile=None, masterpwdfile=None):
+    def __init__(self, workingdir=None, privatekeyfile=None, publickeyfile=None, masterpwdfile=None):
         self.workingdir = workingdir
         self.privatekey = None
         self.publickey = None
@@ -68,11 +68,19 @@ class Manager():
         self.masterpwdIsAFile = True
         self.couples = None
 
-        if workingdir != "./":
+        if workingdir is not None:
             if os.path.isdir(workingdir):
                 self.workingdir = workingdir
             else:
                 raise Exception("{} is not a valid directory".format(workingdir))
+        else:
+            gppath = os.path.expanduser('~/.genpiepie')
+            if not os.path.isdir(gppath) :
+                os.mkdir(gppath)
+
+            self.workingdir = gppath
+
+        print(self.workingdir)
 
         if os.path.exists("{}/conf.json".format(self.workingdir)):
             jconf = dict()
@@ -448,14 +456,7 @@ def main(argv=None):
         print("We will be unable to generate any password without the private key")
         return 3
 
-    if args.workingdir is None:
-        print(
-            "Warning: You didn't specify a working directory, this means that everything will be stored in the current directory")
-        workingdir = "./"
-    else:
-        workingdir = args.workingdir
-
-    manager = Manager(workingdir=workingdir, privatekeyfile=args.privatekey, publickeyfile=args.publickey,
+    manager = Manager(workingdir=args.workingdir, privatekeyfile=args.privatekey, publickeyfile=args.publickey,
                       masterpwdfile=args.masterpwd)
 
     manager.run()
