@@ -11,8 +11,10 @@ import Crypto.Hash.SHA as sha
 
 from genpiepie.genpiepie import *
 
-
 class fmt:
+    """
+    Formating strings
+    """
     PURPLE = '\033[95m'
     CYAN = '\033[96m'
     DARKCYAN = '\033[36m'
@@ -25,6 +27,9 @@ class fmt:
     END = '\033[0m'
 
 class DataManager():
+    """
+    The manager for storing the couples of user/websites
+    """
     def __init__(self, filename):
 
         try:
@@ -79,8 +84,6 @@ class Manager():
                 os.mkdir(gppath)
 
             self.workingdir = gppath
-
-        print(self.workingdir)
 
         if os.path.exists("{}/conf.json".format(self.workingdir)):
             jconf = dict()
@@ -167,53 +170,6 @@ No master password was provided. You will have to generate one through the comma
                self.publickey is not None and \
                self.masterpwd is not None
 
-    def showHelp(self, command=None):
-        if command is None or command == '':
-            print("""
-There are two available commands:
-* {red}{bold}list{end}        or {red}{bold}l{end}    -- Lists available user/website couples
-* {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
-* {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
-* {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
-* [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
-                               Provide a pair of keys and/or a master password.
-* {red}{bold}init{end}                -- Same as {red}{bold}security{end}, except that it is
-               guided (no options to provide, just follow the guide)
-* {red}{bold}help{end}        or {red}{bold}h{end}    -- Shows this help
-* {red}{bold}quit{end}        or {red}{bold}q{end}    -- Exits the manager
-
-If you do not already have a pair of keys and a master password, you have
-to generate them first before being able to use the other commands.
-You can use the command {red}{bold}init{end} to go through that process.
-
-Type "help <command name>" to see the specific help for this command
-            """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED))
-        elif command == "gen":
-            print("""
-Generates a password for a couple of user/website, requires a pair of keys
-and a master password. If you do not have them please use the `init` command
-to generate them.
-
-You can use either of the following options with the `gen` command:
-
-* {red}{bold}new{end} user website      --  Generate a password for the couple user:website.
-                            If the couple user:website is in the saved list, this
-                            option is equivalent to "show the password for this
-                            couple", otherwise it will add that couple to the
-                            list and generate the password.
-* {red}{bold}regen{end} user website    --  Regenerate the password for the selected couple.
-                            The couple user:website has to be in the list, if it
-                            is not this option is equivalent to `new`.
-
-If you give no option (neither new, nor regen), the option {red}{bold}new{end} will be considered.
-
-Example:
-{cyan}gen new myUberuser myWebiste.com{end}
-            """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED, cyan=fmt.CYAN))
-        elif command == "list":
-            print("""
-Lists the available couple of user/password
-            """)
 
     def initialize(self):
         print("""
@@ -431,6 +387,54 @@ Use {bold}{red}help{end} to see how to use the manager.
                 break
             else:
                 print("Not Implemented Yet")
+
+    def showHelp(self, command=None):
+        if command is None or command == '':
+            print("""
+There are two available commands:
+* {red}{bold}list{end}        or {red}{bold}l{end}    -- Lists available user/website couples
+* {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
+* {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
+* {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
+* [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
+                               Provide a pair of keys and/or a master password.
+* {red}{bold}init{end}                -- Same as {red}{bold}security{end}, except that it is
+               guided (no options to provide, just follow the guide)
+* {red}{bold}help{end}        or {red}{bold}h{end}    -- Shows this help
+* {red}{bold}quit{end}        or {red}{bold}q{end}    -- Exits the manager
+
+If you do not already have a pair of keys and a master password, you have
+to generate them first before being able to use the other commands.
+You can use the command {red}{bold}init{end} to go through that process.
+
+Type "help <command name>" to see the specific help for this command
+            """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED))
+        elif command == "gen":
+            print("""
+Generates a password for a couple of user/website, requires a pair of keys
+and a master password. If you do not have them please use the `init` command
+to generate them.
+
+You can use either of the following options with the `gen` command:
+
+* {red}{bold}new{end} user website      --  Generate a password for the couple user:website.
+                            If the couple user:website is in the saved list, this
+                            option is equivalent to "show the password for this
+                            couple", otherwise it will add that couple to the
+                            list and generate the password.
+* {red}{bold}regen{end} user website    --  Regenerate the password for the selected couple.
+                            The couple user:website has to be in the list, if it
+                            is not this option is equivalent to `new`.
+
+If you give no option (neither new, nor regen), the option {red}{bold}new{end} will be considered.
+
+Example:
+{cyan}gen new myUberuser myWebiste.com{end}
+            """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED, cyan=fmt.CYAN))
+        elif command == "list":
+            print("""
+Lists the available couple of user/password
+            """)
 
 
 def main(argv=None):
