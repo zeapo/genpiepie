@@ -112,16 +112,14 @@ class Manager():
                         masterpwdfile is None:
             print("""
 No RSA pair of keys was provided, nor a master password. The manager cannot be used without!
-You can use the {red}{bold}security{end} command to either provide the location of the files,
-or generate them. You can also use the {red}{bold}init{end} command to be guided through this
-process.
+You can use the {red}{bold}init{end} command to be guided through the process of creating them.
             """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED))
 
         elif privatekeyfile is not None and \
                         publickeyfile is not None and \
                         masterpwdfile is None:
             print("""
-No master password was provided. You will have to generate one through the command {red}{bold}security{end}.
+No master password was provided. You will have to generate one through the command {red}{bold}init{end}.
             """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED))
 
             privatekeyfile.replace('~', os.path.expanduser('~'))
@@ -240,7 +238,7 @@ length of both the RSA key and the master password.
             jconf['priv'] = self.privatekey
             jconf['pub'] = self.publickey
         else:
-            keylength = get_key_length(self.privatekey)
+            keylength = get_key_length(self.privatekey, self.withpass)
 
         mpwdFile = input("Name of the master password file: [mpw] ")
         if mpwdFile == "":
@@ -489,8 +487,6 @@ Use {bold}{red}help{end} to see how to use the manager.
 * {red}{bold}regen{end}       or {red}{bold}r{end}    -- Generates a new version of the password for a user/website couple
 * {red}{bold}delete{end}      or {red}{bold}d{end}    -- Deletes a user/website couple
 * {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
-* [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
-                               Provide a pair of keys and/or a master password.
 * {red}{bold}init{end}                -- Same as {red}{bold}security{end}, except that it is
                guided (no options to provide, just follow the guide)
 * {red}{bold}help{end}        or {red}{bold}h{end}    -- Shows this help
