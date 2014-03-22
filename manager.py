@@ -278,6 +278,10 @@ length of both the RSA key and the master password.
 
 
     def generate(self, options=None):
+        """
+        Generates a password, the options are command (new or regen), the user and website.
+        If only two options are given then assume that it's a "new" command.
+        """
         if not self.isInitialized:
             print("The manager is not initialized, use the help command to see how to do it.")
             return
@@ -308,7 +312,6 @@ length of both the RSA key and the master password.
 
             self.db.storeInDB(options[0],options[1])
                 
-
         else:
             print("Not Yet Implemented")
 
@@ -330,6 +333,7 @@ length of both the RSA key and the master password.
                 ids.append(cpl['id'])
                 i += 1
 
+        # if we find at least one entry, generate a password for a user selected one
         if i > 0:
             yn = 1
             try: 
@@ -450,7 +454,12 @@ Example:
             """.format(bold=fmt.BOLD, end=fmt.END, red=fmt.RED, cyan=fmt.CYAN))
         elif command == "list":
             print("""
-Lists the available couple of user/password
+Lists the available couple of user/website
+            """)
+        elif command == "find":
+            print("""
+Searches through the list of user/webiste and list them. The user then is prompted to generate
+the password for one among them.
             """)
 
 
