@@ -57,12 +57,7 @@ Two other files are created, the configuration file `conf.json`:
         "priv": "/home/user/.genpiepie/mykey_priv.pem"
         "pub": "/home/user/.genpiepie/mykey_pub.pem",
         "pass": true,
-        "mpwd": "PS+8pFXT1U4z/FGuoFC1V28pGX/hpSO7ygCQES8Yurq3LxlF/nbDP34tkfsO3VzbetjcYfkT/G/D1Hbi9
-qy3dvUC9IYpT2HmypLX4Rw4PBwzDikWmX3ekTu8FVfFATyWCPxV6BFnCRwuym+8z81B/8GIfR3gjrvQHQmt6POafaHkPMqiuCj8WE6kOayDDxw9JEZEi/Xe6WZHCG9NkzUqQDhRLwW8211iTOQU+2
-DabJdh5JbQh6ytqyyfo7rkkYou2sLxtxPDLMUzOWNmmCIlFtaNbHyWPjYxgjyGqv42F/3i8uEOS9FtEWmS0Y+xzRxC9NC6u79rrgum7IHKSwh7nAo9an/2eHio2i59VXYXx8wR/96aCcVdW7KE6Se
-kO/DNQBE2IUVFnfM9swXBSdvYpmBagiWgBn+AEfZG7aUCK0sckSwsHfHZcnNzP4QsO+ANzZpGiiF32xD4ToH5CHZ7d90ebFaNZkr3xwAdoErUDqOh3IR84he1fiunyGTFSqMFtf4pRAbV9a6zHu2E
-oFweNObqD/6c2bWxtJ7Qv0dtfDOyhqJNQ0Gtd+Ng6Qvf8k3k7qo0rfkPxzshdJTT+JZiMeDDPJSEGAy9iOTh9kFBvLCNsnsWdGjFil5dRBofwP8yR3v7r7WRMEXlEdrsRa6PThQfbU1F4+xWLsXb8
-3aOC2I=",
+        "mpwd": "PS+8pFXT1U4z/FGuoFC1V28pGX/hpSO7ygCQES8Yurq3LxlF/nbDP34tkfsO3VzbetjcYfkT/G/D1Hbi9qy3dvUC9IYpT2HmypLX4Rw4PBwzDikWmX3ekTu8FVfFATyWCPxV6BFnCRwuym+8z81B/8GIfR3gjrvQHQmt6POafaHkPMqiuCj8WE6kOayDDxw9JEZEi/Xe6WZHCG9NkzUqQDhRLwW8211iTOQU+2DabJdh5JbQh6ytqyyfo7rkkYou2sLxtxPDLMUzOWNmmCIlFtaNbHyWPjYxgjyGqv42F/3i8uEOS9FtEWmS0Y+xzRxC9NC6u79rrgum7IHKSwh7nAo9an/2eHio2i59VXYXx8wR/96aCcVdW7KE6SekO/DNQBE2IUVFnfM9swXBSdvYpmBagiWgBn+AEfZG7aUCK0sckSwsHfHZcnNzP4QsO+ANzZpGiiF32xD4ToH5CHZ7d90ebFaNZkr3xwAdoErUDqOh3IR84he1fiunyGTFSqMFtf4pRAbV9a6zHu2EoFweNObqD/6c2bWxtJ7Qv0dtfDOyhqJNQ0Gtd+Ng6Qvf8k3k7qo0rfkPxzshdJTT+JZiMeDDPJSEGAy9iOTh9kFBvLCNsnsWdGjFil5dRBofwP8yR3v7r7WRMEXlEdrsRa6PThQfbU1F4+xWLsXb83aOC2I=",
     }
 
 The `priv` and `pub` keys contain the path to the private and public
