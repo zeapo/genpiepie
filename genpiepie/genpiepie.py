@@ -43,18 +43,22 @@ def gen_key(output='mykey', length=2048, withpass=False):
         public_key.write(key.publickey().exportKey("PEM"))
 
 
-def get_key_length(privatekey):
+def get_key_length(privatekey, withpass=False):
     """ Returns the length of a private key
 
     Keywords arguments:
     privatekey      -- The file containing the private key
+    withpass        -- The key is encrypted with a passphrase
     """
     try:
         priv_key = open(privatekey).read()
     except Exception as err:
         log.error("[get_key_length] {}".format(err))
     else:
-        rsa_key = rsa.importKey(priv_key)
+        if withpass:
+            rsa_key = rsa.importKey(priv_key, , passphrase=gp("Passphrase: "))
+        else:
+            rsa_key = rsa.importKey(priv_key)
         return rsa_key.size()
 
 
