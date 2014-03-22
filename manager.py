@@ -347,6 +347,8 @@ length of both the RSA key and the master password.
                     print("Your password is: {}".format(pwd))
 
                 self.db.storeInDB(options[0],options[1], version = v)
+        else :
+            print("Unkown option")
 
 
     def list(self):
