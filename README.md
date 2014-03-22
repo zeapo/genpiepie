@@ -1,38 +1,45 @@
 genpiepie
 =========
 
-Simple password generator in python
+Simple password manager in python
 
 Generating passwords
 =========
 The basic idea is to combine the couple `username`/`website` with a
-`master_password` and two symbols to generate a unique password. This latter
-can be regenerated at each time, using `gen_pwd()`, as long as we know the key
-and the symbols. We offer a simple script to use this function easily:
+`master_password` and two symbols to generate a unique password. To do that, **genpiepie** offers three key functions
+- `gen_key` generates a pair of RSA keys with user specified length and passphrase
+- `gen_masterpwd` generates a random master password and encrypt it using a public key so that only the user can decrypt it
+- `gen_pwd` generates a password for a couple of **username** and **website** using the **master password** generated earlier
 
-    usage: gen_pwd.py -u USER -w WEBSITE
+Using these key functions, we have built a password manager that stores only the couples of username/website and gives the ability to generate, for each couple, a unique password. If the password is compromized, we  offer also the possibility for the user to regenerate a new one for the same couple and keep track of these changes.
 
-    Generate passwords
-        -u USER, --user USER  The username
-        -w WEBSITE, --website WEBSITE The website
+# The manager #
 
-Combining multiple couples of username and website with a single couple of
-`master_password` and symbols, one has only to remember the later to generate
-any password he wants again and again. However, this `master_password` is a
-security point of failure, hence a long and hard to find one is a must. 
+Running the `manager.py` script the first time will prompt you with a shell-like interface:
 
-To achieve that, we think that a randomly generated `key` encrypted using an
-RSA key is the answer. This is where `gen_masterpwd()` and `gen_keys()` come
-to the rescue. We offer a simple script that combines both of them and generates
-a set of keys and encrypts a random `masterkey` using the public key generated:
+    No RSA pair of keys was provided, nor a master password. The manager cannot be used without!
+    You can use the init command to be guided through the process of creating them.
 
-    usage: gen_keys.py [--output OUTPUT] [--length LENGTH] [--masterkey MASTERKEY]
+    Type exit to stop the shell
+    > 
 
-    Generate RSA keys and a masterkey encrypted with the publickey
+This prompt tells you that you have to generate a pair of keys and a master password. Once you type the command `init`, you will be guided through that process, everything is clearly explained.
+     
+    > init
 
-    optional arguments:
-    --output OUTPUT         The prefix of private keys
-    --length LENGTH         The length of the key
-    --masterkey MASTERKEY   A randomly generated masterkey, encoded in b64
+    You will be guided through the process of the creation of a pair of RSA keys and a master
+    password file that will be used to generate the passwords. If you intended to provide
+    the files rather than generate them, please use the security command,
+    give an empty file name to return to the main screen.
 
+    The name of RSA pair of keys will be prefixed with a name that you will provide first, then
+    we generate a master password and save it under a name that you provide. You can chose the
+    length of both the RSA key and the master password.
 
+    RSA keys' name prefix: mykey
+    RSA key length larger or equal to 1024 [default = 2048]: 4096
+    Do you want to use a passphrase? [y/N] y
+    Passphrase: 
+    Name of the master password file: [mpw] mymaster
+    Master password length larger or equal to 10 [default = 128]: 
+    > 
