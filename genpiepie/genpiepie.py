@@ -130,7 +130,13 @@ def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, ver
         else:
             priv_key = priv_file.read()
             if withpass:
-                rsa_key = rsa.importKey(priv_key, passphrase = gp("passphrase: "))
+                try:
+                    rsa_key = rsa.importKey(priv_key, passphrase = gp("passphrase: "))
+                except Exception as err:
+                    print("Error while importing the private key, the passphrase is probably wrong.")
+                    print(err)
+                    raise ValueError("Problem while decrypting the private key")
+                    return
             else:
                 rsa_key = rsa.importKey(priv_key)
             cipher = pkcs.new(rsa_key)
