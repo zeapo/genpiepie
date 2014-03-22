@@ -290,8 +290,10 @@ length of both the RSA key and the master password.
 
         if options[0] == "new" and len(options) == 3:
             cmd = "new"
+            options = options[1:]
         elif options[0] == "regen" and len(options) == 3:
             cmd = "regen"
+            options = options[1:]
         elif len(options) > 2:
             print("Too many options, please provide a user and a website.")
             return
@@ -301,8 +303,22 @@ length of both the RSA key and the master password.
         else:
             cmd = "new"
 
-        if cmd == "new":
-            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey, withpass=self.withpass)
+        h = sha.new()
+        h.update("{}@{}".format(options[0].strip(),options[1].strip()).encode('utf-8'))
+        cpl = self.db.find(h.hexdigest())
+
+        if cmd == "new" or cpl == None:
+
+            #if the user asks for a password and we have the couple in our possesion, retrieve the version
+            if cpl is not None:
+                v = cpl['ver']
+            else:
+                v = -1
+
+            try:
+                pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey, withpass=self.withpass, version = v)
+            except ValueError:
+                return
 
             copyto = input("Copy to clipboard? [y/N] ")
             if copyto.lower() == "y" or copyto.lower() == "yes":
@@ -312,8 +328,24 @@ length of both the RSA key and the master password.
 
             self.db.storeInDB(options[0],options[1])
                 
-        else:
-            print("Not Yet Implemented")
+        elif cmd == "regen":
+
+            yn = input("Do you want to regenerate the password for the couple {} {}? [Y/n] ".format(cpl['user'],cpl['web']))
+
+            if yn == "" or yn.lower() == "y" or yn.lower() == "yes":
+                v = cpl['ver'] + 1
+                try:
+                    pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey, withpass=self.withpass, version = v)
+                except ValueError:
+                    return
+
+                copyto = input("Copy to clipboard? [y/N] ")
+                if copyto.lower() == "y" or copyto.lower() == "yes":
+                    pyclip.setcb(pwd)
+                else:
+                    print("Your password is: {}".format(pwd))
+
+                self.db.storeInDB(options[0],options[1], version = v)
 
 
     def list(self):
@@ -346,7 +378,10 @@ length of both the RSA key and the master password.
                     
             if yn > 0 and yn <= len(ids):
                 cpl = self.db.find(ids[yn - 1])
-                pwd = gen_pwd(cpl['user'], cpl['web'], self.masterpwd, private = self.privatekey, withpass = self.withpass)
+                try:
+                    pwd = gen_pwd(cpl['user'], cpl['web'], self.masterpwd, private = self.privatekey, withpass = self.withpass, version = cpl['ver'])
+                except ValueError:
+                    return
 
                 copyto = input("Copy to clipboard? [y/N] ")
                 if copyto.lower() == "y" or copyto.lower() == "yes":
@@ -412,7 +447,6 @@ Use {bold}{red}help{end} to see how to use the manager.
     def showHelp(self, command=None):
         if command is None or command == '':
             print("""
-There are two available commands:
 * {red}{bold}list{end}        or {red}{bold}l{end}    -- Lists available user/website couples
 * {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
 * {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
