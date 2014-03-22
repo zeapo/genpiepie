@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import sys
 import re
 import argparse
@@ -72,6 +71,7 @@ class Manager():
         self.masterpwd = None
         self.masterpwdIsAFile = True
         self.couples = None
+        self.withpass = None
 
         if workingdir is not None:
             if os.path.isdir(workingdir):
@@ -100,6 +100,8 @@ class Manager():
                 masterpwdfile = ""
                 self.masterpwd = jconf['mpwd']
                 self.masterpwdIsAFile = False
+
+            self.withpass = jconf['pass']
 
         if privatekeyfile is None and \
                         publickeyfile is None and \
@@ -209,8 +211,23 @@ length of both the RSA key and the master password.
                 if keylength % 8 != 0:
                     print("The length of the key has to be a multiple of 8, we suggest 2048 or 4096 bits keys.")
 
+            while self.withpass is None:
+                try:
+                    wpswd = input("Do you want to use a passphrase? [y/N] ")
+                    if wpswd == "":
+                        self.withpass = False
+                    else:
+                        self.withpass = (wpswd.strip().lower() == "yes") or (wpswd.strip().lower() == "y")
+
+                except Exception as err:
+                    print("Please answer with 'y' (or 'yes') or 'n' (or 'no'), error : {}".format(err))
+                    self.withpass = None
+                    continue
+
+            jconf['pass'] = self.withpass
+
             keysprefix = "{}/{}".format(self.workingdir,keysprefix)
-            gen_key(output=keysprefix, length=keylength)
+            gen_key(output = keysprefix, length = keylength, withpass = self.withpass)
 
             #we do not need to store their values in memory, only the file name is required
             self.privatekey = "{}_priv.pem".format(keysprefix)
@@ -281,7 +298,7 @@ length of both the RSA key and the master password.
             cmd = "new"
 
         if cmd == "new":
-            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey)
+            pwd = gen_pwd(options[0].strip(), options[1].strip(), self.masterpwd, private=self.privatekey, withpass=self.withpass)
 
             copyto = input("Copy to clipboard? [y/N] ")
             if copyto.lower() == "y" or copyto.lower() == "yes":
@@ -325,7 +342,7 @@ length of both the RSA key and the master password.
                     
             if yn > 0 and yn <= len(ids):
                 cpl = self.db.find(ids[yn - 1])
-                pwd = gen_pwd(cpl['user'], cpl['web'], self.masterpwd, private=self.privatekey)
+                pwd = gen_pwd(cpl['user'], cpl['web'], self.masterpwd, private = self.privatekey, withpass = self.withpass)
 
                 copyto = input("Copy to clipboard? [y/N] ")
                 if copyto.lower() == "y" or copyto.lower() == "yes":
