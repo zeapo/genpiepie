@@ -11,7 +11,7 @@ import Crypto.Random.random as rand
 import Crypto.Signature.PKCS1_v1_5 as pkcs_sgn
 
 
-def gen_key(output='mykey', length=2048):
+def gen_key(output='mykey', length=2048, withpass=False):
     """ Generates a couple of RSA private / public keys
 
     Keywords arguments:
@@ -34,7 +34,10 @@ def gen_key(output='mykey', length=2048):
     pub_output = "{}_pub.pem".format(output)
 
     with open(priv_output, 'wb') as private_key:
-        private_key.write(key.exportKey('PEM'))
+        if withpass:
+            private_key.write(key.exportKey('PEM', passphrase=input("Passphrase: "))
+        else:
+            private_key.write(key.exportKey('PEM'))
 
     with open(pub_output, 'wb') as public_key:
         public_key.write(key.publickey().exportKey("PEM"))
