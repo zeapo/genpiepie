@@ -45,14 +45,15 @@ class DataManager():
         """
         h = sha.new()
         h.update("{}@{}".format(user,website).encode('utf-8'))
+        h = h.hexdigest()
 
         self.table.upsert(
             dict(
-                id = h.hexdigest(),
+                id = h,
                 user = user.strip(),
                 web  = website.strip(),
                 ver  = version
-            ), keys=['id', 'user', 'web', 'ver'])
+            ), keys=['id'])
 
     def listContent(self):
         """ Returns a list containing all the database
