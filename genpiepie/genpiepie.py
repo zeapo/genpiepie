@@ -157,7 +157,7 @@ def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, ver
 
     # This allows us to generate multiple passwords with the same couples
     if version >= 0:
-        h.update(masterpwd[version % len(masterpwd)])
+        h.update(masterpwd[version % len(masterpwd)].encode('utf-8'))
 
     digest = h.hexdigest()
 
