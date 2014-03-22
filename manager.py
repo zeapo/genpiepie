@@ -64,6 +64,9 @@ class DataManager():
     def find(self, hash):
         return self.table.find_one(id = hash)
 
+    def delete(self, hash):
+        self.table.delete(id = hash)
+
 class Manager():
     def __init__(self, workingdir=None, privatekeyfile=None, publickeyfile=None, masterpwdfile=None):
         self.workingdir = workingdir
@@ -348,16 +351,9 @@ length of both the RSA key and the master password.
 
                 self.db.storeInDB(options[0],options[1], version = v)
         else :
-            print("Unkown option")
+            print("Unknown option")
 
-
-    def list(self):
-        for cpl in self.db.listContent():
-            print("User   : {}".format(cpl['user']))
-            print("Website: {}".format(cpl['web']))
-            print("--------")
-
-    def find(self, string):
+    def delete(self, string = ''):
         ids = []
         i = 0
         for cpl in self.db.listContent():
@@ -370,9 +366,40 @@ length of both the RSA key and the master password.
 
         # if we find at least one entry, generate a password for a user selected one
         if i > 0:
-            yn = 1
+            yn = 0
             try: 
-                inp = input("Which couple do you want to generate the password for? [{}] ".format(yn))
+                inp = input("Which couple do you want to delete? (empty for none) ")
+                if inp != '':
+                    yn = int(inp)
+            except Exception as err:
+                print("Problem with your input", err)
+                return
+
+            if yn > 0 and yn <= len(ids):
+                self.db.delete(ids[yn - 1])
+
+    def list(self):
+        for cpl in self.db.listContent():
+            print("User   : {}".format(cpl['user']))
+            print("Website: {}".format(cpl['web']))
+            print("--------")
+
+    def find(self, string = ''):
+        ids = []
+        i = 0
+        for cpl in self.db.listContent():
+            if string in cpl['user'] or string in cpl['web']:
+                print("Couple", i + 1)
+                print("User   : {}".format(cpl['user']))
+                print("Website: {}".format(cpl['web']))
+                ids.append(cpl['id'])
+                i += 1
+
+        # if we find at least one entry, generate a password for a user selected one
+        if i > 0:
+            yn = 0
+            try: 
+                inp = input("Which couple do you want to generate the password for? (empty for none) ")
                 if inp != '':
                     yn = int(inp)
             except Exception as err:
@@ -430,6 +457,12 @@ Use {bold}{red}help{end} to see how to use the manager.
             elif cmd[0] == "regen" or cmd[0] == "r":
                 self.generate("regen {}".format(cmd[1].strip()))
 
+            elif cmd[0] == "delete" or cmd[0] == "d":
+                if len(cmd) > 1:
+                    self.delete(cmd[1].strip())
+                else:
+                    self.delete()
+
             elif cmd[0] == "list" or cmd[0] == "l":
                 self.list()
 
@@ -454,6 +487,7 @@ Use {bold}{red}help{end} to see how to use the manager.
 * {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
 * {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
 * {red}{bold}regen{end}       or {red}{bold}r{end}    -- Generates a new version of the password for a user/website couple
+* {red}{bold}delete{end}      or {red}{bold}d{end}    -- Deletes a user/website couple
 * {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
 * [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
                                Provide a pair of keys and/or a master password.
