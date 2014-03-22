@@ -56,7 +56,7 @@ def get_key_length(privatekey, withpass=False):
         log.error("[get_key_length] {}".format(err))
     else:
         if withpass:
-            rsa_key = rsa.importKey(priv_key, , passphrase=gp("Passphrase: "))
+            rsa_key = rsa.importKey(priv_key, passphrase=gp("Passphrase: "))
         else:
             rsa_key = rsa.importKey(priv_key)
         return rsa_key.size()
