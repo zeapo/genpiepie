@@ -9,7 +9,6 @@ import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
 import Crypto.Cipher.PKCS1_OAEP as pkcs
 import Crypto.Random.random as rand
-import Crypto.Signature.PKCS1_v1_5 as pkcs_sgn
 
 
 def gen_key(output='mykey', length=2048, withpass=False):
@@ -172,86 +171,3 @@ def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, ver
         sym2,
         digest[-strip:].lower()
     )
-
-def sign(sdata, private):
-
-    try:
-        priv_file = open(private, 'r')
-
-    except Exception as err:
-        log.error("[sign] {}".format(err))
-
-
-    priv_key = priv_file.read()
-    key = rsa.importKey(priv_key)
-    priv_file.close()
-
-    h = sha.new(sdata)
-    signer = pkcs_sgn.new(key)
-    signature = signer.sign(h)
-
-    return base64.b64encode(signature)
-
-def verify_signature(sdata, public, signature):
-    
-    try:
-        pub_file = open(public, 'r')
-
-    except Exception as err:
-        log.error("[verify_signature] {}".format(err))
-
-
-    pub_key = pub_file.read()
-    key = rsa.importKey(pub_key)
-    pub_file.close()
-    
-    h = sha.new(sdata)
-
-    verifier = pkcs_sgn.new(key)
-    signature = base64.b64decode(signature)
-
-    if verifier.verify(h, signature):
-        return True
-    else:
-        return False
-
-def gen_certificate(private):
-    
-    # subject
-    subject = 'some subject'
-    
-    # validity
-    notbefore = 'Feb  1 10:00:00 2014 GMT'
-    notafter  = 'Jul  2 12:00:00 2014 GMT'
-    
-    data = { 
-        'subject': subject,
-        'validity': {
-            'not_before': notbefore,
-            'not_after': notafter
-            }
-        }
-
-    sdata = json.dumps(data)
-
-    signature = sign(sdata, private)
-    
-    certificate = {
-        'data': data,
-        'signature': signature
-        }
-
-    return certificate
-
-def verify_certificate(certificate, public):
-    
-    data = certificate['data']
-
-    sdata = json.dumps(data)
-
-    signature = certificate['signature']
-    
-    if verify_signature(sdata, public, signature):
-        return True
-    else:
-        return False
