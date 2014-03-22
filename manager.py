@@ -536,13 +536,20 @@ the password for one among them.
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Generate passwords")
+    parser = argparse.ArgumentParser()
+    mgr = parser.add_argument_group("Password Manager")
+    mgr.add_argument('-w', '--workingdir',
+                    help='The directory where the master password file and the list of user/websites will be stored in')
+    mgr.add_argument('-p', '--privatekey', help='The private key file used to decrypt the master password')
+    mgr.add_argument('-u', '--publickey', help='The pulic key file used to encrypt the master password')
+    mgr.add_argument('-m', '--masterpwd', help='The master password file')
 
-    parser.add_argument('-w', '--workingdir',
-                        help='The directory where the master password file and the list of user/websites will be stored in')
-    parser.add_argument('-p', '--privatekey', help='The private key file used to decrypt the master password')
-    parser.add_argument('-u', '--publickey', help='The pulic key file used to encrypt the master password')
-    parser.add_argument('-m', '--masterpwd', help='The master password file')
+    gpwd = parser.add_argument_group("Password Generator")
+    gpwd.add_argument('-g', '--gen', help='Generates a password for a couple of user:website')
+    gpwd.add_argument('-r', '--regen', help='Generates a new version of the password of a couple of user:website')
+
+    tools = parser.add_argument_group("Tools")
+    tools.add_argument('-i', '--init', help='Launches the wizard to initialize the manager (creates keys and master password)')
 
     args = parser.parse_args()
 
@@ -561,8 +568,27 @@ def main(argv=None):
     manager = Manager(workingdir=args.workingdir, privatekeyfile=args.privatekey, publickeyfile=args.publickey,
                       masterpwdfile=args.masterpwd)
 
-    manager.run()
+    if args.gen is not None:
+        if ':' in args.gen:
+            u, w = args.gen.split(':')
+            manager.generate("{} {}".format(u, w))
+        else:
+            print("Please provide both a user and a website in the form 'user:password'")
+            return 4
 
+    elif args.regen is not None:
+        if ':' in args.regen:
+            u, w = args.regen.split(':')
+            manager.generate("regen {} {}".format(u, w))
+        else:
+            print("Please provide both a user and a website in the form 'user:password'")
+            return 5
+
+    elif args.init is not None:
+        manager.initialize()
+
+    else:
+        manager.run() 
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
