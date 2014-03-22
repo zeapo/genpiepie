@@ -3,6 +3,7 @@ import logging as log
 import string
 import base64
 import json
+from getpass import getpass as gp
 
 import Crypto.Hash.SHA256 as sha
 import Crypto.PublicKey.RSA as rsa
@@ -35,7 +36,7 @@ def gen_key(output='mykey', length=2048, withpass=False):
 
     with open(priv_output, 'wb') as private_key:
         if withpass:
-            private_key.write(key.exportKey('PEM', passphrase=input("Passphrase: "))
+            private_key.write(key.exportKey('PEM', passphrase=gp("Passphrase: ")))
         else:
             private_key.write(key.exportKey('PEM'))
 
@@ -101,7 +102,7 @@ def gen_masterpwd(length=128, public=None):
         return master
 
 
-def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, version=-1):
+def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, version=-1, withpass=False):
     """ Generates a password for the couple user/website
 
     Keywords arguments:
@@ -129,7 +130,10 @@ def gen_pwd(user, web, masterpwd, strip=6, private=None, masteronfile=False, ver
 
         else:
             priv_key = priv_file.read()
-            rsa_key = rsa.importKey(priv_key)
+            if withpass:
+                rsa_key = rsa.importKey(priv_key, passphrase = gp("passphrase: "))
+            else:
+                rsa_key = rsa.importKey(priv_key)
             cipher = pkcs.new(rsa_key)
             masterpwd = base64.b64decode(masterpwd)
             masterpwd = cipher.decrypt(masterpwd).decode('utf-8')
