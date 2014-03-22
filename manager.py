@@ -289,7 +289,10 @@ length of both the RSA key and the master password.
 
         options = options.split()
 
-        if options[0] == "new" and len(options) == 3:
+        if len(options) < 2:
+            print("Too few options, please provide a user and a website.")
+            return
+        elif options[0] == "new" and len(options) == 3:
             cmd = "new"
             options = options[1:]
         elif options[0] == "regen" and len(options) == 3:
@@ -297,9 +300,6 @@ length of both the RSA key and the master password.
             options = options[1:]
         elif len(options) > 2:
             print("Too many options, please provide a user and a website.")
-            return
-        elif len(options) < 2:
-            print("Too few options, please provide a user and a website.")
             return
         else:
             cmd = "new"
@@ -423,10 +423,10 @@ Use {bold}{red}help{end} to see how to use the manager.
                 self.initialize()
 
             elif cmd[0] == "gen" or cmd[0] == "g":
-                if len(cmd) > 1 and cmd[1] != '':
-                    self.generate(cmd[1].strip())
-                else:
-                    self.generate()
+                self.generate(cmd[1].strip())
+
+            elif cmd[0] == "regen" or cmd[0] == "r":
+                self.generate("regen {}".format(cmd[1].strip()))
 
             elif cmd[0] == "list" or cmd[0] == "l":
                 self.list()
@@ -451,6 +451,7 @@ Use {bold}{red}help{end} to see how to use the manager.
 * {red}{bold}list{end}        or {red}{bold}l{end}    -- Lists available user/website couples
 * {red}{bold}find{end}        or {red}{bold}f{end}    -- Finds a couple user/website
 * {red}{bold}gen{end}         or {red}{bold}g{end}    -- Generate a password for a user/website couple
+* {red}{bold}regen{end}       or {red}{bold}r{end}    -- Generates a new version of the password for a user/website couple
 * {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
 * [NYI]{red}{bold}security{end}       -- Generate a pair of keys and/or a master password.
                                Provide a pair of keys and/or a master password.
@@ -473,13 +474,13 @@ to generate them.
 
 You can use either of the following options with the `gen` command:
 
-* {red}{bold}new{end} user website      --  Generate a password for the couple user:website.
+* {red}{bold}new{end} user website      --  Generates a password for the couple user:website.
                             If the couple user:website is in the saved list, this
                             option is equivalent to "show the password for this
                             couple", otherwise it will add that couple to the
                             list and generate the password.
-* {red}{bold}regen{end} user website    --  Regenerate the password for the selected couple.
-                            The couple user:website has to be in the list, if it
+* {red}{bold}regen{end} user website    --  Generates a new version of the password for the
+                            selected couple. The couple user:website has to be in the list, if it
                             is not this option is equivalent to `new`.
 
 If you give no option (neither new, nor regen), the option {red}{bold}new{end} will be considered.
