@@ -487,8 +487,7 @@ Use {bold}{red}help{end} to see how to use the manager.
 * {red}{bold}regen{end}       or {red}{bold}r{end}    -- Generates a new version of the password for a user/website couple
 * {red}{bold}delete{end}      or {red}{bold}d{end}    -- Deletes a user/website couple
 * {red}{bold}clean{end}       or {red}{bold}c{end}    -- Cleans the clipboard (from the copied password)
-* {red}{bold}init{end}                -- Same as {red}{bold}security{end}, except that it is
-               guided (no options to provide, just follow the guide)
+* {red}{bold}init{end}                -- Initialization wizard, helps to create the RSA keys and master password, just follow the guide
 * {red}{bold}help{end}        or {red}{bold}h{end}    -- Shows this help
 * {red}{bold}quit{end}        or {red}{bold}q{end}    -- Exits the manager
 
