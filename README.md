@@ -132,3 +132,25 @@ the available couples and propose to generate the password:
 Notice that it searches on both the usernames and websites and you can see (generate) the password for whichever couple you find.
 
 Suppose that you wanted to put into the clipboard your password, we provide a simple way to clean it using the `clean` or `c` command that will put into the clipboard the sentence *the password was here*. 
+
+Suppose now that someone got access to the database of website and you want to regenerate the password for that same couple, you can then use the `regen` command.
+
+    > r myuser@mywebsite.com github.com
+    Do you want to regenerate the password for the couple myuser@mywebsite.com github.com? [Y/n] Y
+    passphrase: 
+    Copy to clipboard? [y/N] n
+    Your password is: 19093C{d1d853"5cfef8
+    > f
+    Couple 1
+    User   : myuser@mywebsite.com
+    Website: github.com
+    Which couple do you want to generate the password for? (empty for none) 1
+    passphrase: 
+    Copy to clipboard? [y/N] 
+    Your password is: 19093C{d1d853"5cfef8
+
+Here we generated a new version for our couple and we keep track of this change in the database. 
+
+# The password generation #
+
+To generate the password we start by creating a SHA256 hash  of the sort `hash(username+'@'+website+masterpwd+masterpwd[version])`. Once we have this hash we take three sub-strings of 6 characters (this length is controllable) and separate them using two symbols. This later step is to add more complexity especially for websites that are picky on it. Again, for the same reason, we make the first sub-string uppercase, we end with the password `upper(str1)+sym1+str2+sym2+str3`.
