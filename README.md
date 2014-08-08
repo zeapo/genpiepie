@@ -3,6 +3,14 @@ genpiepie
 
 Simple password manager in python
 
+Dependencies
+============
+genpiepie depends on two libraries [Pyperclip](https://pypi.python.org/pypi/pyperclip/) and [PyCrypto](https://pypi.python.org/pypi/pycrypto). To install them use
+
+    pip install pyperclip
+    pip install pycrypto
+    
+
 Generating passwords
 =========
 The basic idea is to combine the couple `username`/`website` with a
