@@ -3,16 +3,16 @@ genpiepie
 
 Simple password manager in python
 
-Dependencies
-============
+### Dependencies
+
 genpiepie depends on two libraries [Pyperclip](https://pypi.python.org/pypi/pyperclip/) and [PyCrypto](https://pypi.python.org/pypi/pycrypto). To install them use
 
     pip install pyperclip
     pip install pycrypto
     
 
-Generating passwords
-=========
+### Generating passwords
+
 The basic idea is to combine the couple `username`/`website` with a
 `master_password` and two symbols to generate a unique password. To do that, **genpiepie** offers three key functions
 - `gen_key` generates a pair of RSA keys with user specified length and passphrase
@@ -21,7 +21,7 @@ The basic idea is to combine the couple `username`/`website` with a
 
 Using these key functions, we have built a password manager that stores only the couples of username/website and gives the ability to generate, for each couple, a unique password. If the password is compromized, we  offer also the possibility for the user to regenerate a new one for the same couple and keep track of these changes.
 
-# The manager #
+### The manager
 
 Running the `manager.py` script the first time will prompt you with a shell-like interface:
 
@@ -159,6 +159,6 @@ Suppose now that someone got access to the database of website and you want to r
 
 Here we generated a new version for our couple and we keep track of this change in the database. 
 
-# The password generation #
+### The password generation
 
 To generate the password we start by creating a SHA256 hash  of the sort `hash(username+'@'+website+masterpwd+masterpwd[version])`. Once we have this hash we take three sub-strings of 6 characters (this length is controllable) and separate them using two symbols. This later step is to add more complexity especially for websites that are picky on it. Again, for the same reason, we make the first sub-string uppercase, we end with the password `upper(str1)+sym1+str2+sym2+str3`.
